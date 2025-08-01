@@ -1,0 +1,16 @@
+# Não versionar dependências Node.js
+node_modules/
+
+# Opções extras recomendadas:
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env
+.env.local
+.DS_Store
+
+# Diretórios de coverage
+coverage/
+
+# Arquivos do Jest
+jest-coverage/
