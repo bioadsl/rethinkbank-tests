@@ -119,3 +119,5 @@ Após a execução abrangente da suíte de testes (happy path, negativos, borda,
 ---
 
 Todas as evidências detalhadas podem ser consultadas em [`evidencias_completo.txt`](./evidencias_completo.txt) para análise detalhada do comportamento atual da API.
+
+OBS: O HTML é gerado em /coverage/lcov-report/index.html NÃO ESTA COM PROBLEMA. O HTML do coverage não está sendo gerado corretamente (ou está vazio) porque, neste projeto, os testes estão sendo rodados apenas contra uma API externa e não possui nenhum código fonte local para o Jest instrumentar e analisar cobertura.
