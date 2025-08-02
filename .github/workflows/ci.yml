@@ -1,0 +1,36 @@
+name: Node.js CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Configurar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22.x'
+
+      - name: Instalar dependências
+        run: npm install
+
+      - name: Executar testes (Jest)
+        run: npm test
+
+      - name: Gerar relatório de cobertura
+        run: npm run test:coverage
+
+      - name: Publicar sumário de cobertura (se desejar)
+        if: always()
+        run: |
+          echo "Cobertura de código não será publicada pois o projeto testa uma API pública externa."

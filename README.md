@@ -1,135 +1,121 @@
 # Testes End-to-End – Rethink Bank (API Pública)
 
-Este projeto automatiza o fluxo E2E do usuário e diversos cenários negativos do sistema Rethink Bank utilizando **Jest + Supertest**, diretamente sobre a API pública:  
+Este projeto automatiza todos os cenários principais, negativos, de borda, segurança e resiliência do Rethink Bank utilizando **Jest + Supertest** diretamente sobre a API pública:  
 https://points-app-backend.vercel.app
 
 ---
 
 ## ✨ Stack Utilizada
 
-- **Jest** para execução e estruturação dos testes automatizados.
-- **Supertest** para simulação de requisições HTTP.
+- **Jest**: execução/organização dos testes automatizados.
+- **Supertest**: requisições HTTP automatizadas.
 
 ---
 
-## Como rodar os testes
+## Como executar os testes
 
 1. **Instale as dependências:**
 npm install
 
 text
 
-2. **Execute todos os testes:**
+2. **Execute todos os testes:**  
 npm test
 
 text
+O resultado também pode ser salvo em arquivo:
+npm test > evidencias_completo.txt
 
-3. O output detalhado está em [`evidencias_jornada.txt`](./evidencias_jornada.txt).
+text
 
----
+3. **Relatório de cobertura (coverage):**
+npm run test:coverage
 
-## Escopo dos Testes Automatizados
+text
+- O resumo aparece no terminal.
+- O HTML detalhado é gerado em `/coverage/lcov-report/index.html`.
 
-O projeto cobre:
-
-- Cadastro e confirmação de usuário
-- Login, token e endpoints autenticados
-- Depósito e extrato na caixinha 
-- Envio de pontos entre usuários
-- Verificação de extratos e saldo
-- Exclusão de conta
-- Testes negativos: dados duplicados, login errado, saldo insuficiente, depósitos inválidos
-
-Falhas e inconsistências são registradas via `console.warn` e detalhadas abaixo.
+> **Nota:** Coverage pode aparecer como 0% pois a API é externa (não há código local a ser instrumentado).
 
 ---
 
-## 1. Bugs e Observações Encontradas
+## Evidências dos testes
 
-Todos os testes positivos passaram, contudo, foram identificados comportamentos inesperados. Segue enumeração dos bugs encontrados:
+- Todos os logs e avisos gerados em tempo de execução estão disponíveis em [`evidencias_completo.txt`](./evidencias_completo.txt).
+- **Principais evidências geradas nos avisos/warnings:**
 
-### Bug 1 — Saldo não atualizado após depósito na caixinha
-
-- **Fluxo Onde Ocorre:** Consulta saldo após depósito na caixinha.
-- **Descrição:** Ao depositar 30 pontos, o saldo da caixinha deveria ir para 30 e o saldo normal, cair para 70.
-- **Observado:** O saldo da caixinha permaneceu 0 e o saldo normal em 100.
-- **Evidência do log:**
 console.warn
 Saldo da caixinha esperado: 30, recebido: 0. Possível bug na lógica do backend.
 
 console.warn
 Saldo normal esperado: 70, recebido: 100. Possível bug na lógica do backend.
 
-text
-- **Tempo médio deste teste:** 1.091 s
-
----
-
-### Bug 2 — API aceita valores inválidos para depósito na caixinha
-
-- **Fluxo Onde Ocorre:** Depósito de valores inválidos na caixinha.
-- **Descrição:** Foram enviados valores como -10, 0, 'abc', null, undefined — o sistema deveria rejeitar (status 400).
-- **Observado:** A API retornou status 200 (aceitou o depósito) para todos esses casos.
-- **Evidência do log:**
 console.warn
 API aceitou valor inválido para depósito: -10. Status 200 recebido.
-...
+console.warn
+API aceitou valor inválido para depósito: 0. Status 200 recebido.
+console.warn
+API aceitou valor inválido para depósito: abc. Status 200 recebido.
+console.warn
+API aceitou valor inválido para depósito: null. Status 200 recebido.
+console.warn
+API aceitou valor inválido para depósito: undefined. Status 200 recebido.
 
 text
-- **Tempo total do teste:** 4.213 s
+- **Todos os arquivos de teste finalizam com “PASS”** indicando sucesso dos fluxos — exceto as inconsistências acima (relatadas no backend/negativos).
 
 ---
 
-## 2. Detalhes de Testes Negativos
+## Organização dos testes
 
-Incluem, ainda que com retorno técnico correto:
-
-- **Cadastro com email repetido:** Rejeitado, corpo traz `"error"` corretamente.
-- **Cadastro com CPF repetido:** Rejeitado, corpo traz `"error"`.
-- **Login com senha incorreta:** Mensagem padrão `"credenciais inválidas"` retornada em `"error"`.
-- **Envio de pontos com saldo insuficiente:** Rejeitado com `"Saldo insuficiente"` em `"error"`.
-- Para todos: tempo médio de 389 ms a 543 ms.
-
----
-
-## 3. Métricas Gerais
-
-| #  | Fluxo                                      | Status          | Tempo Médio |
-|----|--------------------------------------------|-----------------|-------------|
-|  1 | Cadastro Usuário 1                         | Sucesso         | 3.061 s     |
-|  2 | Confirmação de Email Usuário 1             | Sucesso         | 836 ms      |
-|  3 | Login Usuário 1                            | Sucesso         | 868 ms      |
-|  4 | Cadastro/Confirmação/Login Usuário 2       | Sucesso         | 2.097 s     |
-|  5 | Consulta saldo inicial Usuário 1           | Sucesso         | 1.402 s     |
-|  6 | Depósito na caixinha Usuário 1             | Sucesso         | 1.057 s     |
-|  7 | Consulta saldo após depósito (bug 1)       | Warn/Bug        | 1.091 s     |
-|  8 | Envio de pontos Usuário 1 para Usuário 2   | Sucesso         | 1.035 s     |
-|  9 | Consulta extrato de pontos                 | Sucesso         | 664 ms      |
-| 10 | Consulta extrato da caixinha               | Sucesso         | 409 ms      |
-| 11 | Exclusão de conta Usuário 1                | Sucesso         | 912 ms      |
-| 12 | Email repetido (negativo)                  | Sucesso         | 485 ms      |
-| 13 | CPF repetido (negativo)                    | Sucesso         | 543 ms      |
-| 14 | Login com senha errada (negativo)          | Sucesso         | 493 ms      |
-| 15 | Saldo insuficiente (negativo)              | Sucesso         | 389 ms      |
-| 16 | Dep. valores inválidos (bug 2 - warnings)  | Warn/Bug        | 4.213 s     |
+Arquivos organizados em `/tests`, por categoria:
+- `happyPath.e2e.test.js` — Jornada completa do usuário
+- `negativos.e2e.test.js` — Validações, duplicados, bloqueios
+- `borda.e2e.test.js` — Inputs extremos, limites
+- `seguranca.e2e.test.js` — Testes de autorização e token
+- `resiliencia.e2e.test.js` — Requisições malformadas/campos errados
 
 ---
 
-## 4. Conclusão Técnica
+## Resumo e recomendações
 
-- O fluxo principal (incluindo autenticação, saldo, transações e exclusão de conta) está funcionando.
-- **Dois bugs relevantes** identificados: saldo não atualizado corretamente e aceitação de depósitos inválidos.
-- Mensagens de erro padronizadas em `.error` e não `.message`.
-- Recomendação: corrigir os bugs de saldo/validação antes do Go Live.
-
-**O sistema NÃO está pronto para produção até que as inconsistências listadas (bugs 1 e 2) sejam corrigidas.**
+- **Principais fluxos passaram**, mas bugs críticos precisam ser corrigidos:
+  1. Saldo e caixinha não atualizam corretamente após depósito (ver evidências).
+  2. API aceita depósito de valores negativos/nulos/texto (ver evidências).
+- O arquivo [`evidencias_completo.txt`](./evidencias_completo.txt) traz todos os detalhes dos testes, logs e warnings para análise do time de QA/desenvolvimento.
 
 ---
 
-## 5. Evidências detalhadas
+## Relatório de cobertura
 
-Logs completos e detalhes de todas as execuções estão em [`evidencias_jornada.txt`](./evidencias_jornada.txt).
+- Execute `npm run test:coverage` para visualizar.
+- O link do relatório detalhado: `/coverage/lcov-report/index.html`
+- **Observação:** Como a automação testa uma API pública sem acesso ao backend/instrumentação, o coverage aparece 0%.
+
+## Conclusão técnica e criticidade dos bugs
+
+Após a execução abrangente da suíte de testes (happy path, negativos, borda, segurança e resiliência), todos os fluxos principais operam, mas foram identificados **dois bugs críticos**:
+
+### 1. Saldo não atualizado após depósito na caixinha
+- **Criticidade:** ALTA
+- **Impacto:** Compromete completamente a transparência, confiabilidade e rastreabilidade do controle financeiro da plataforma. Pode permitir manipulação ou inconsistência de saldos.
+- **Status encontrado:** O saldo normal não é descontado e o saldo da caixinha permanece em 0 após depósito, contrariando a lógica do produto.
+
+### 2. API aceita valores inválidos para depósito
+- **Criticidade:** ALTA
+- **Impacto:** Permite manipulação indevida do sistema (depósito de valores negativos, nulos ou não numéricos), abrindo brecha para exploração, fraudes ou corrupção de dados financeiros.
+- **Status encontrado:** API responde status 200 para depósitos inválidos, sem bloquear essas operações.
+
+### 3. Mensagens de erro inconsistentes
+- **Criticidade:** MÉDIA
+- **Impacto:** Dificulta o uso automático e o debug da API, e pode prejudicar a integração com outros sistemas e a experiência do usuário.
 
 ---
 
-Se precisar de qualquer orientação extra, exemplos de melhorias ou expansão dos testes, sinta-se à vontade para solicitar.
+**Resumo Final:**
+- Como ambos bugs são classificados como de criticidade ALTA, o sistema, nesta versão, **não está pronto para produção**.
+- Recomenda-se **correção urgente** dos fluxos de saldo/validação de valores, e uma revisão das mensagens de erro antes de qualquer Go Live.
+
+---
+
+Todas as evidências detalhadas podem ser consultadas em [`evidencias_completo.txt`](./evidencias_completo.txt) para análise detalhada do comportamento atual da API.
