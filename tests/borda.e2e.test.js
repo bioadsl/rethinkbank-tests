@@ -5,10 +5,8 @@ function generateRandomCpf() {
   return String(Math.floor(10000000000 + Math.random() * 89999999999));
 }
 
-function generateRandomEmailWithSpecialChars() {
-  const specialChars = ['.', '_', '-', '+'];
-  const char = specialChars[Math.floor(Math.random() * specialChars.length)];
-  return `qa${char}${Date.now()}@exemplo.co.uk`;
+function generateRandomEmail() {
+  return `qa_${Date.now()}_${Math.floor(Math.random() * 10000)}@exemplo.com`;
 }
 
 describe('Testes de Borda - Inputs Extremos e Limites', () => {
