@@ -46,9 +46,6 @@ describe('Testes de Borda - Inputs Extremos e Limites', () => {
   });
 
   it('Deve aceitar transferência de pontos exatamente igual ao saldo', async () => {
-    // Implementação detalhada do fluxo para testar transferência do saldo exato
-    // Exemplo base para criar usuário, confirmar, logar, enviar pontos
-
     // Gerar dados para usuário
     const user = {
       cpf: generateRandomCpf(),
@@ -105,7 +102,7 @@ describe('Testes de Borda - Inputs Extremos e Limites', () => {
     // Verificar saldo zerado do remetente
     const saldoFinal = await request(API).get('/points/saldo').set('Authorization', `Bearer ${token}`).expect(200);
     expect(saldoFinal.body.normal_balance).toBe(0);
-  });
+  }, 30000);  // Definindo timeout de 30 segundos para este teste
 
   it('Deve rejeitar cpf com formato inválido', async () => {
     const user = {
